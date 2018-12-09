@@ -2,6 +2,7 @@ require('pry')
 require_relative('../db/sql_runner')
 require_relative('./customer')
 require_relative('./ticket')
+require_relative('./screening')
 
 class Film
 
@@ -63,6 +64,34 @@ class Film
     results =  SqlRunner.run(sql, values)
     return results.count
   end
+
+  # def Film.time_of_screenings
+  #   sql = 'SELECT films.title, screenings.timing FROM
+  #          screenings INNER JOIN films
+  #         ON screenings.film_id = films.id'
+  #   # values = [@id]
+  #   array_of_movies_times = SqlRunner.run(sql)
+  #   films = array_of_movies_times.map {|film| Film.new(film)}
+  #   times = array_of_movies_times.map {|time| Screening.new(time)}
+  #   films << times
+  #   binding.pry
+  #   return films.flatten
+  #   # array_of_movies_times.each {|movie| return movie['title']}
+  #   binding.pry
+  # end
+
+  def time_of_screening
+    sql = 'SELECT screenings.timing FROM
+           screenings INNER JOIN films
+          ON screenings.film_id = $1'
+    values = [@id]
+    results = SqlRunner.run(sql, values)
+    return  results[0]["timing"]
+  end
+
+
+
+
 
 
 

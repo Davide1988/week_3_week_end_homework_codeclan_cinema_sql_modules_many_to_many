@@ -2,6 +2,7 @@ require('pry')
 require_relative('../db/sql_runner')
 require_relative('./film')
 require_relative('./ticket')
+require_relative('./screening')
 
 class Customer
 
@@ -66,9 +67,16 @@ class Customer
  end
 
 
- def customer_pay_ticket(film)
-   if @funds >= film.price
+ def customer_pay_ticket(film, screening)
+   sql = "SELECT COUNT(tickets.screening_id) FROM
+          tickets WHERE screening_id = $1"
+   values = [screening.id]
+   results = SqlRunner.run(sql, values)
+   number_of_tickets_sold = results[0]['count'].to_i
+   if number_of_tickets_sold < screening.seating && @funds >= film.price && screening.seating > 0
       @funds -= film.price
+      screening.seating -= 1
+      Ticket.new({'customer_id' => @id, 'film_id' => film.id, 'screening_id' => screening.id}).save
    end
    update
  end
